@@ -1,0 +1,4 @@
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/nm4_only/rv_monitor.sv" into library work
+INFO: [VRFC 10-311] analyzing module rv_monitor
+INFO: [VRFC 10-2263] Analyzing SystemVerilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/nm4_only/tb_configured.sv" into library work
+INFO: [VRFC 10-311] analyzing module tb_gemm

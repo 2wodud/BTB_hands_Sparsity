@@ -1,0 +1,23 @@
+Vivado Simulator v2022.2
+Copyright 1986-1999, 2001-2022 Xilinx, Inc. All Rights Reserved.
+Running: C:/Xilinx/Vivado/2022.2/bin/unwrapped/win64.o/xelab.exe tb_gemm -s gemm_sim -debug typical 
+Multi-threading is on. Using 6 slave threads.
+Starting static elaboration
+Pass Through NonSizing Optimizer
+WARNING: [VRFC 10-3645] port 'event_mul' remains unconnected for this instance [C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/integrated_skip/tb_configured.sv:50]
+Completed static elaboration
+Starting simulation data flow analysis
+Completed simulation data flow analysis
+Time Resolution for simulation is 1ps
+Compiling module work.gemm_control_default
+Compiling module work.operand_loader_default
+Compiling module work.sparsity_frontend(SKIP_EMPTY=1)
+Compiling module work.mac_array(FACTORED_MASK=1,SPECIA...
+Compiling module work.result_writer_default
+Compiling module work.gemm_top(SKIP_EMPTY=1)
+Compiling module work.rv_monitor(WIDTH=90)
+Compiling module work.rv_monitor(WIDTH=74)
+Compiling module work.rv_monitor(WIDTH=528)
+Compiling module work.rv_monitor(WIDTH=166)
+Compiling module work.tb_gemm
+Built simulation snapshot gemm_sim
