@@ -1,0 +1,12 @@
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/integrated_pipeline/gemm_control.v" into library work
+INFO: [VRFC 10-311] analyzing module gemm_control
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/integrated_pipeline/operand_loader.v" into library work
+INFO: [VRFC 10-311] analyzing module operand_loader
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/integrated_pipeline/sparsity_frontend.v" into library work
+INFO: [VRFC 10-311] analyzing module sparsity_frontend
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/integrated_pipeline/mac_array.v" into library work
+INFO: [VRFC 10-311] analyzing module mac_array
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/integrated_pipeline/result_writer.v" into library work
+INFO: [VRFC 10-311] analyzing module result_writer
+INFO: [VRFC 10-2263] Analyzing Verilog file "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/integrated_pipeline/gemm_top.v" into library work
+INFO: [VRFC 10-311] analyzing module gemm_top

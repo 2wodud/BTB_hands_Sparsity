@@ -1,0 +1,19 @@
+
+****** xsim v2022.2 (64-bit)
+  **** SW Build 3671981 on Fri Oct 14 05:00:03 MDT 2022
+  **** IP Build 3669848 on Fri Oct 14 08:30:02 MDT 2022
+    ** Copyright 1986-2022 Xilinx, Inc. All Rights Reserved.
+
+source xsim.dir/gemm_sim/xsim_script.tcl
+# xsim {gemm_sim} -testplusarg HOST_TEST -testplusarg RESET_TEST -autoloadwcfg -runall -onfinish quit -onerror quit
+Time resolution is 1 ps
+run -all
+PASS run=0 M=3 N=7 K=5 cycles=300 MACs=105
+PASS run=1 M=3 N=7 K=5 cycles=306 MACs=105
+PASS run=2 M=3 N=7 K=5 cycles=300 MACs=105
+PASS run=3 M=3 N=7 K=5 cycles=300 MACs=105
+PASS run=4 M=3 N=7 K=5 cycles=298 MACs=105
+GEMM REGRESSION PASS
+$finish called at time : 16950 ns : File "C:/Users/legen/.codex/visualizations/2026/11/03/01a1a1d4-7316-7f42-8746-3b9c8586478b/integrated_build/baseline/tb_configured.sv" Line 217
+exit 0
+INFO: [Common 17-206] Exiting xsim at Wed Nov  4 00:46:35 2026...
