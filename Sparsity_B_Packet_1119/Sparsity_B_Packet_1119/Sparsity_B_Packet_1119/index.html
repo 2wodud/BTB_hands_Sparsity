@@ -1,0 +1,402 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BTB Sparsity · 입력에서 MAC 출력까지</title>
+<style>
+:root{color-scheme:light;--ink:#172b40;--muted:#586e81;--paper:#f3f6fa;--line:#d8e2ec;--blue:#225fce;--soft:#edf3ff;--green:#11634d;--mint:#eaf6ef;--orange:#9e4c20;--sand:#fff0e5;--white:#fff}
+*{box-sizing:border-box}body{margin:0;color:var(--ink);background:var(--paper);font:14px/1.6 "Malgun Gothic",Arial,sans-serif;word-break:keep-all}main{max-width:1480px;padding:24px 28px 42px;margin:auto}h1,h2,h3,p{margin:0}h1{font-size:clamp(23px,2.5vw,32px);letter-spacing:-.04em;line-height:1.35}h2{font-size:18px;letter-spacing:-.02em}h3{font-size:14px}button,select,input{font:inherit;color:inherit}button,select{border:1px solid #b9c9d9;background:white;border-radius:6px;padding:6px 10px}button{cursor:pointer}button:hover{border-color:var(--blue)}button:disabled{opacity:.4;cursor:default}button[aria-pressed=true]{background:var(--soft);color:var(--blue);border-color:var(--blue)}button.primary{color:white;background:var(--blue);border-color:var(--blue)}button:focus-visible,select:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #8badf2;outline-offset:2px}.muted,small{color:var(--muted)}code{font:.92em Consolas,monospace;word-break:break-word;background:#eaf0f6;border-radius:4px;padding:1px 3px}.mono{font-family:Consolas,monospace}.head{display:flex;justify-content:space-between;gap:20px;align-items:center}.head p{font-size:13px;color:var(--muted);margin-top:6px}.date{font-size:11px;color:var(--muted);white-space:nowrap}
+.settings{margin-top:18px;display:flex;gap:11px;flex-wrap:wrap;padding:14px 16px;background:white;border:1px solid var(--line);border-radius:10px}.field{display:grid;gap:3px;color:var(--muted);font-size:11px}.field select{color:var(--ink);font-size:13px;max-width:100%}.set-shape{min-width:175px}.customs{display:flex;gap:6px;align-items:end}.customs[hidden]{display:none}.customs input{width:58px;border:1px solid #b9c9d9;border-radius:5px;padding:6px;background:white}.reset{align-self:end;margin-left:auto;font-size:12px}.error{color:#a52d23;font-size:12px;min-height:0}.error:empty{display:none}
+.stagebar{margin:15px 0;display:flex;align-items:center;gap:9px;flex-wrap:wrap}.stagebar small{margin-left:auto}.progress{display:flex;gap:3px;align-items:center;flex-wrap:wrap;flex:1;min-width:150px}.pip{height:22px;min-width:18px;flex:1;max-width:45px;border-radius:3px;background:#e0e7ee;text-align:center;font:10px/22px Consolas,monospace;color:#6d7b88}.pip.done{background:#cee5d9;color:var(--green)}.pip.current{outline:2px solid var(--blue);outline-offset:-1px}.pipe-caption{font-size:11px;color:var(--muted);min-width:155px}.flow{display:grid;grid-template-columns:1fr 1.02fr 1.13fr;gap:18px;align-items:stretch}.flow>section{min-width:0;background:white;border:1px solid var(--line);border-radius:11px;position:relative}.flow>section:not(:last-child):after{content:"→";position:absolute;right:-18px;top:25px;z-index:2;width:18px;text-align:center;font-size:18px;color:var(--muted)}.panel-head{padding:15px 16px 12px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:8px;align-items:baseline}.panel-head small{font-size:10px}.body{padding:13px 16px}.caption{display:flex;justify-content:space-between;gap:8px;align-items:baseline;font-size:12px;margin-bottom:5px}.caption small{font-size:10px}.mat{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:3px;font-variant-numeric:tabular-nums}.mat th{font-size:10px;font-weight:400;color:var(--muted);padding:3px 0;text-align:center}.mat td{padding:0;border-radius:4px;background:#f0f4f7;height:30px;position:relative}.mat td.selected{background:var(--soft);box-shadow:inset 0 0 0 2px var(--blue)}.mat td.pending{opacity:.45;background:#f6f7f9}.mat td.invalid{color:#9eacb8;text-align:center;font-size:12px;background:#f8f9fb}.mat input{border:0;background:transparent;width:100%;text-align:center;padding:4px 0;border-radius:4px;font-size:13px;appearance:textfield}.mat input::-webkit-inner-spin-button,.mat input::-webkit-outer-spin-button{appearance:none}.mat input.zero{color:#8a9ca9}.mat input:focus{background:white;outline-offset:-2px}.a-block{margin-bottom:13px}.key{display:flex;gap:9px;flex-wrap:wrap;color:var(--muted);font-size:10px;margin-top:9px}.key i{display:inline-block;width:8px;height:8px;background:var(--blue);border-radius:2px;margin-right:3px}.key .wait{background:#d3dce6}.bits-grid{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}.bits-grid th{font-size:10px;font-weight:400;text-align:left;color:var(--muted);padding:7px 4px;border-bottom:1px solid var(--line)}.bits-grid td{padding:10px 4px;border-bottom:1px solid #e6edf3}.bits-grid tr.focus{background:var(--soft)}.bits-grid button{padding:3px 7px;font-size:12px;border:0;background:transparent}.pill-mode{color:var(--green);font-size:11px}.bit{font:13px Consolas,monospace;letter-spacing:.08em}.pick-k{font-weight:700;color:var(--blue)}.split{border-top:1px solid var(--line);margin-top:13px;padding-top:13px}.stats{display:flex;align-items:baseline;gap:7px}.stats strong{font-size:22px;color:var(--green)}.stats small{font-size:11px}.rounds{display:flex;gap:5px;align-items:center;flex-wrap:wrap;margin-top:9px}.rounds button{font-size:12px;padding:5px 10px}.packet{background:var(--ink);color:white;border-radius:8px;padding:13px;margin-top:15px}.packet-top{display:flex;justify-content:space-between;gap:8px;font-size:11px;color:#c8d8e9}.fields{display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:8px}.fields>div{border-left:1px solid #536b81;padding-left:9px}.fields>div:first-child{border-left:0;padding-left:0}.fields span{font-size:9px;color:#c8d8e9;display:block}.fields b{font:700 25px/1.5 Consolas,monospace;letter-spacing:.07em}.packet-note{font-size:11px;color:#dae5ef;margin-top:6px}
+.output-list{width:100%;border-collapse:collapse;font-size:12px}.output-list th{text-align:left;font-size:10px;font-weight:400;color:var(--muted);padding:6px 5px;border-bottom:1px solid var(--line)}.output-list td{padding:9px 5px;vertical-align:top;border-bottom:1px solid #e6edf3}.output-list tr.focus{background:var(--soft)}.output-list button{border:0;background:transparent;padding:2px 5px;font-size:12px;font-weight:700;color:var(--blue)}.a-vector{font-size:11px;white-space:nowrap}.tag-name{display:block;color:var(--muted);font-size:10px}.empty{color:#899baa}.masks{display:grid;grid-template-columns:1fr 1fr;gap:15px}.mask{width:100%;table-layout:fixed;border-collapse:separate;border-spacing:3px;font-size:11px}.mask th{color:var(--muted);font-size:9px;font-weight:400;padding:0}.mask td{padding:3px;text-align:center;border-radius:3px;background:#eef2f6}.mask td.on{color:var(--green);background:var(--mint);font-weight:700}.mask-word{font-size:11px;margin-top:5px;letter-spacing:.04em}.signal-line{display:flex;gap:8px;flex-wrap:wrap;font-size:11px;margin-top:11px;color:var(--muted)}.signal-line span{background:#f1f5f8;border-radius:4px;padding:3px 6px}.signal-line .live{color:var(--green);background:var(--mint)}.helper{font-size:11px;color:var(--muted);line-height:1.65;margin-top:8px}.trace{display:flex;gap:12px;justify-content:space-between;align-items:center;background:var(--soft);border:1px solid #d4e2fc;border-radius:9px;padding:13px 16px;margin-top:15px}.trace p{font-size:13px}.trace small{display:block;font-size:11px;color:var(--blue);margin-bottom:4px}.trace button{font-size:12px;white-space:nowrap}.result{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:15px}.result>div{min-width:0}.result-head{display:flex;gap:8px;justify-content:space-between;align-items:baseline;font-size:12px;margin-bottom:5px}.result-head b{font-size:17px;color:var(--green)}.scroll{overflow:auto;max-width:100%}.ops{width:100%;border-collapse:collapse;font-size:11px;font-variant-numeric:tabular-nums;background:white}.ops th{text-align:left;color:var(--muted);font-weight:400;padding:6px 8px;border-bottom:1px solid var(--line);white-space:nowrap}.ops td{padding:7px 8px;border-bottom:1px solid var(--line);white-space:nowrap}.ops .focus{background:var(--soft)}.result-foot{margin-top:9px;background:var(--mint);color:var(--green);border-radius:6px;padding:9px 13px;font-size:12px}.bottom-bar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:19px;padding-top:16px;border-top:1px solid var(--line)}.bottom-bar .field{display:flex;align-items:center;gap:8px}.bottom-bar p{font-size:11px;color:var(--muted)}details{margin-top:15px;background:white;border:1px solid var(--line);border-radius:9px;padding:13px 16px}summary{cursor:pointer;font-weight:700;font-size:13px}details p{font-size:12px;color:var(--muted);margin-top:9px}.structure{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-top:15px}.structure>div{min-width:0;background:#f3f6fa;border-radius:6px;padding:11px;position:relative}.structure>div:not(:last-child):after{content:"→";position:absolute;right:-14px;top:34px;width:14px;color:var(--muted)}.structure strong{display:block;font-size:12px}.structure small{display:block;font-size:10px;margin-top:5px}.structure code{font-size:9px;display:block;margin-top:8px}.interface-note{padding:10px 12px;background:var(--sand);border-radius:6px;margin-top:13px;font-size:12px;color:#7d4124}.footer{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:10px;color:var(--muted);margin-top:22px}
+@media(min-width:1500px){main{padding-top:28px}}
+@media(max-width:1050px){.flow{grid-template-columns:1fr 1fr}.flow>section:last-child{grid-column:1/-1}.flow>section:nth-child(2):after{display:none}.output-body{display:grid;grid-template-columns:1.1fr 1fr;gap:22px}.output-body>.split{margin-top:0;padding-top:0;border:0}.structure{grid-template-columns:repeat(3,1fr)}.structure>div:nth-child(3):after{display:none}}
+@media(max-width:650px){main{padding:17px 12px 28px}.date{display:none}.settings{padding:12px;gap:8px}.field{flex:1;min-width:90px}.set-shape{min-width:160px}.reset{margin-left:0}.flow{grid-template-columns:1fr;gap:15px}.flow>section:last-child{grid-column:auto}.flow>section:after{display:none}.output-body,.result{grid-template-columns:1fr}.output-body>.split{border-top:1px solid var(--line);padding-top:13px}.body{padding:12px}.trace{display:block}.trace button{margin-top:10px}.stagebar small{width:100%;margin-left:0}.pipe-caption{font-size:10px}.structure{grid-template-columns:1fr 1fr}.structure>div:after{display:none}.ops{font-size:11px}.head p{font-size:12px}.bottom-bar .field{flex:auto}.bottom-bar select{max-width:100%}.customs{width:100%}}
+@media print{body{background:white}main{max-width:none;padding:0}.settings,.stagebar,.rounds,#ready,.reset,#next-output,.trace button{display:none}.flow{grid-template-columns:1fr 1fr 1fr;gap:10px}.flow>section:last-child{grid-column:auto}.output-body{display:block}.field select{border:0}.structure{grid-template-columns:repeat(3,1fr)}details{break-inside:avoid}details>*{display:block!important}.flow,.result{break-inside:avoid}.footer{margin-top:12px}}
+</style>
+</head>
+<body>
+<main>
+<header class="head"><div><h1>입력 A·B가 MAC 패킷이 되는 과정</h1><p>메모리팀 HTML의 행렬값으로 입력 → 그룹 수집 → 열별 K 선택 → 출력까지 연결해서 봅니다.</p></div><span class="date">BTB SPARSITY · 2026.11.19</span></header>
+<section class="settings" aria-label="입력 조건">
+<label class="field set-shape">M × N × K<select id="shape"><option value="20,12,8">20 × 12 × 8</option><option value="8,8,4">8 × 8 × 4</option><option value="19,11,7">19 × 11 × 7</option><option value="64,128,128">64 × 128 × 128</option><option value="custom">직접 지정</option></select></label>
+<div id="customs" class="customs" hidden><label class="field">M<input id="custom-m" type="number" min="1" max="64" value="20"></label><label class="field">N<input id="custom-n" type="number" min="1" max="128" value="12"></label><label class="field">K<input id="custom-k" type="number" min="1" max="1024" value="8"></label><button id="apply-shape">적용</button></div>
+<label class="field">B 값 패턴<select id="pattern"><option value="2">2:4</option><option value="1">1:4</option><option value="3">3:4 → Dense</option><option value="4">Dense</option><option value="0">전부 0</option><option value="mixed">혼합 0~4:4</option></select></label>
+<label class="field">행 블록<select id="block"></select></label>
+<label class="field">열 타일<select id="tile"></select></label>
+<label class="field">K 그룹<select id="group"></select></label>
+<label class="field">볼 ACC<select id="bank"></select></label>
+<button class="reset" id="reset">입력값 초기화</button>
+</section>
+<p id="error" class="error" role="alert"></p>
+<div class="stagebar">
+<button id="play" class="primary" aria-pressed="false">▶ 재생</button>
+<label class="field" style="min-width:74px">재생 속도<select id="speed"><option value="1000">느리게</option><option value="500" selected>보통</option><option value="250">빠르게</option><option value="125">아주 빠르게</option></select></label>
+<button id="input-first">입력 처음</button><button id="input-next">다음 입력</button><button id="input-full">그룹 완성</button>
+<div id="input-progress" class="progress" aria-label="입력 패킷 수집"></div><span id="input-caption" class="pipe-caption"></span>
+<small>패킷 순서 설명 · RTL 사이클 수와 별도</small>
+</div>
+<p id="playback-status" class="helper" role="status" style="margin:0 0 10px">재생하면 선택 그룹의 입력 수집부터 MAC 발행까지 진행합니다.</p>
+
+<div class="flow">
+<section aria-labelledby="input-title">
+<div class="panel-head"><h2 id="input-title">들어오는 입력</h2><small id="input-loc"></small></div>
+<div class="body">
+<div class="a-block"><div class="caption"><b>A · 선택 ACC의 4행</b><small>열 = 원래 K</small></div><div id="input-a"></div></div>
+<div class="caption"><b>B · ACC들이 공유</b><small>행 = 원래 K</small></div><div id="input-b"></div>
+<div class="key"><span><i></i>출력 열에서 선택한 원본 위치</span><span><i class="wait"></i>아직 수집 전</span></div>
+<p class="helper">숫자를 직접 바꾸면 위치 비트맵·모드·선택 K와 MAC 출력이 함께 바뀝니다. 범위는 signed INT8 −128~127입니다.</p>
+</div>
+</section>
+
+<section aria-labelledby="process-title">
+<div class="panel-head"><h2 id="process-title">스파시티 처리</h2><small>두 그룹 버퍼 · 열별 선택</small></div>
+<div class="body">
+<table class="bits-grid"><thead><tr><th>B 열</th><th>위치 bit<br><span class="mono">K3…K0</span></th><th>N:4 모드</th><th>이번 K</th></tr></thead><tbody id="mode-rows"></tbody></table>
+<div class="split"><div class="stats"><strong id="round-count"></strong><small id="round-explain"></small></div><div id="rounds" class="rounds"></div><p class="helper" id="processing-state"></p></div>
+<div class="packet" aria-live="polite"><div class="packet-top"><span>out_k_mask[7:0]</span><b id="k-hex"></b></div><div id="k-fields" class="fields"></div><p id="k-note" class="packet-note"></p></div>
+<p class="helper">00은 그룹 내부 K=0을 뜻합니다. 계산 항이 없는 열도 00을 보내므로 B 태그·실행 마스크로 유효 여부를 함께 판정합니다.</p>
+</div>
+</section>
+
+<section aria-labelledby="output-title">
+<div class="panel-head"><h2 id="output-title">MAC에 보내는 패킷</h2><small id="output-loc"></small></div>
+<div class="body output-body">
+<div><table class="output-list"><thead><tr><th>B 열</th><th>선택한 A 벡터<br><span class="muted">행 0 → 3</span></th><th>B 값 / 태그</th></tr></thead><tbody id="out-rows"></tbody></table><div class="signal-line" id="signals"></div></div>
+<div class="split"><div class="masks"><div><div class="caption"><b>PE 실행 마스크</b></div><div id="work-mask"></div></div><div><div class="caption"><b>out_a · 열별 32bit</b></div><p class="helper" style="margin:0">각 열이 위 A 벡터를 받습니다. A와 B는 같은 원래 K에서 선택됩니다.</p><div id="a-word" class="mask-word mono"></div></div></div><div class="rounds"><button id="ready" aria-pressed="false">MAC ready = 1</button><button id="next-output">다음 발행 →</button></div><p class="helper" id="handshake"></p></div>
+</div>
+</section>
+</div>
+
+<div class="trace" id="trace" aria-live="polite"></div>
+
+<div class="bottom-bar"><label class="field">계산을 확인할 A 행<select id="row"></select></label><p>아래는 선택 ACC 한 행의 그룹 계산입니다. ‘·’은 A 또는 B가 0이어서 실행하지 않는 항입니다.</p></div>
+<div class="result">
+<div><div class="result-head"><b>기존 · 같은 K를 모든 열에 전달</b><span id="old-summary"></span></div><div id="old-ops" class="scroll"></div></div>
+<div><div class="result-head"><b>압축 · 열마다 필요한 K를 선택</b><span id="new-summary"></span></div><div id="new-ops" class="scroll"></div></div>
+</div>
+<div class="result-foot" id="result"></div>
+
+<details id="structure">
+<summary>상세 구조와 코드 변수 보기</summary>
+<div class="structure">
+<div><strong>입력·K 추적</strong><small>bank별 K 추적. 같은 K에서 활성 ACC를 순회.</small><code>next_k / in_pos</code></div>
+<div><strong>그룹 버퍼</strong><small>A는 ACC별 4K, B는 공유 4K 저장. 두 슬롯 교대.</small><code>a_values / b_values</code></div>
+<div><strong>모드·태그</strong><small>열별 위치 비트맵에서 0·1·2:4 또는 Dense 결정.</small><code>choose_mode / classify_b</code></div>
+<div><strong>K 선택</strong><small>비트맵의 n번째 1을 선택. Dense는 유효 K 순회.</small><code>select_k / k_pos</code></div>
+<div><strong>패킷 구성</strong><small>같은 K의 A·B·태그를 고르고 PE 마스크 생성.</small><code>out_a / out_b / work_mask</code></div>
+<div><strong>발행·교대</strong><small>ACC → 라운드 순회. 수락한 뒤 위치 진행.</small><code>out_k_mask / advance</code></div>
+</div>
+<p>기본 4 ACC에서 한 그룹의 A 64 B와 공유 B 16 B를 저장합니다. 두 슬롯의 A·B 값은 총 160 B이며 태그·마스크는 별도입니다. 완성한 그룹을 발행하면서 다음 그룹을 다른 슬롯에 받을 수 있습니다.</p>
+<p>0:4 중간 그룹은 발행을 생략합니다. 타일 첫·마지막 그룹은 마스크 0인 라운드로 초기화·결과 처리를 보존합니다. K=1은 패킷 하나가 타일을 완성하며 기존 Compute v2는 ACC 0을 재사용합니다.</p>
+<p>이 화면은 선택한 한 그룹의 입력·발행 순서를 설명합니다. 두 슬롯의 동시 동작과 메모리 지연을 포함한 전체 RTL 타이밍은 시뮬레이션으로 측정합니다.</p>
+</details>
+
+<details><summary>포트 규약과 A 선택 합의사항</summary>
+<p><code>out_k_mask[2*c +: 2]</code>는 c열의 그룹 내부 K 위치입니다. 0열 [1:0], 1열 [3:2], 2열 [5:4], 3열 [7:6]입니다. 실제 K는 <code>out_k + 열별 K 오프셋</code>입니다.</p>
+<p><code>work_mask[4*r+c]</code>는 r행·c열의 실행 여부이고, B 태그는 열당 4비트입니다. out_rows/out_cols는 실제로 존재하는 C 행·열을 나타냅니다. out_first/out_last는 타일 경계입니다.</p>
+<div class="interface-note">현재 스파시티는 선택한 A 128비트와 K 선택 8비트를 함께 출력합니다. MAC이 K로 A를 직접 고르는 연결은 A 그룹 전달·저장·교체 규약을 합의해야 합니다.</div>
+</details>
+<footer class="footer"><span>입력값 생성 기준 · 메모리팀 BTB_스케줄링_비교.html / makeInput</span><span>동작 기준 · BTB_Sparsity_KMask8 / sparsity_frontend.v · 오프라인 사용</span></footer>
+</main>
+<script>
+'use strict';
+const $=id=>document.getElementById(id);
+const range=(start,end)=>Array.from({length:end-start},(_,i)=>start+i);
+function makeInput({m,n,k,pattern}){
+  const a=range(0,m*k).map(i=>(i*23+5*(i%7)+19)%31-15);
+  const values=[1,-1,2,4,8,-5,7,-128,64,13];
+  const b=range(0,k*n).map(i=>{
+    const row=Math.floor(i/n),col=i%n,group=Math.floor(row/4);
+    const count=pattern==='mixed'?(group+col)%5:Number(pattern);
+    return (row+col+group)%4<count?values[(i+3*col+group)%values.length]:0;
+  });
+  const expected=range(0,m*n).map(i=>{
+    const row=Math.floor(i/n),col=i%n;
+    let value=0;
+    for(let q=0;q<k;q++)value+=a[row*k+q]*b[q*n+col];
+    return value;
+  });
+  return {a,b,expected};
+}
+const modeNames=['0:4','1:4','2:4','Dense'];
+let m=20,n=12,k=8,inputs;
+let rb=0,col=0,base=0,bank=0,round=0,focusCol=0,received=0,ready=true;
+let playbackTimer=null, playbackStarted=false, playbackDone=false, outputConsumed=0;
+const tagOf=value=>value===0?0:value===1?2:value===-1?3:
+  [2,4,8,16,32,64].includes(value)?8+Math.log2(value):1;
+function tagLabel(t){return t===0?'ZERO':t===1?'MUL':t===2?'PASS':t===3?'NEG':'SHL'+(t-8);}
+const bin=(v,w)=>v.toString(2).padStart(w,'0');
+const hex=(v,w)=>v.toString(16).toUpperCase().padStart(w,'0');
+const format=v=>new Intl.NumberFormat('ko-KR').format(v);
+function setup(){
+ $('error').textContent='';
+ inputs=makeInput({m,n,k,pattern:$('pattern').value});
+ rb=0;col=0;base=0;bank=0;round=0;ready=true;focusCol=0;
+ selects();received=totalPackets();render();
+}
+function nbanks(){return Math.ceil(Math.min(16,m-rb)/4);}
+function groupLen(){return Math.min(4,k-base);}
+function totalPackets(){return k===1?nbanks():groupLen()*nbanks();}
+function opt(values,fn){return values.map(v=>'<option value="'+v+'">'+fn(v)+'</option>').join('');}
+function selects(){
+ $('block').innerHTML=opt(range(0,Math.ceil(m/16)).map(i=>16*i),v=>'행 '+v+'–'+Math.min(m-1,v+15));
+ $('block').value=rb;
+ $('tile').innerHTML=opt(range(0,Math.ceil(n/4)).map(i=>4*i),v=>'열 '+v+'–'+Math.min(n-1,v+3));
+ $('tile').value=col;
+ $('group').innerHTML=opt(range(0,Math.ceil(k/4)).map(i=>4*i),v=>'K '+v+'–'+Math.min(k-1,v+3));
+ $('group').value=base;
+ bank=Math.min(bank,nbanks()-1);
+ $('bank').innerHTML=opt(range(0,nbanks()),v=>'ACC '+v+' · 행 '+(rb+4*v));
+ $('bank').value=bank;
+ rowsSelect();
+}
+function rowsSelect(){
+ const first=rb+4*bank;
+ const prev=+$('row').value;
+ $('row').innerHTML=opt(range(first,Math.min(m,first+4)),v=>'행 '+v);
+ $('row').value=prev>=first&&prev<Math.min(m,first+4)?prev:first;
+}
+function modeModel(){
+ const len=groupLen();
+ const lists=range(0,4).map(c=>col+c<n?range(0,len).filter(q=>inputs.b[(base+q)*n+col+c]!==0):[]);
+ const modes=lists.map(qs=>Math.min(3,qs.length));
+ const selections=lists.map((qs,c)=>modes[c]===3?range(0,len):qs);
+ const count=Math.max(...selections.map(v=>v.length));
+ const boundary=base===0||base+len===k;
+ const rounds=count||boundary?Math.max(1,count):0;
+ round=Math.max(0,Math.min(round,Math.max(0,rounds-1)));
+ const ks=selections.map(v=>v[round]??null);
+ const rowStart=rb+4*bank;
+ const av=ks.map(q=>q===null?[0,0,0,0]:range(0,4).map(r=>rowStart+r<m?inputs.a[(rowStart+r)*k+base+q]:0));
+ const bv=ks.map((q,c)=>q===null||col+c>=n?0:inputs.b[(base+q)*n+col+c]);
+ const masks=range(0,4).map(r=>range(0,4).map(c=>ks[c]!==null&&av[c][r]!==0&&bv[c]!==0?1:0));
+ const allReady=k===1?received>bank:received===totalPackets();
+ const valid=allReady&&rounds>0;
+ const first=base===0&&round===0;
+ const last=base+len===k&&round===rounds-1;
+ return{len,lists,modes,selections,rounds,ks,av,bv,masks,rowStart,allReady,valid,first,last};
+}
+function inputArrived(q,b){return received>(k===1?b:q*nbanks()+b);}
+function editCell(kind,r,c,value,arrived,selected){
+ const idx=kind==='a'?r*k+c:r*n+c;
+ return '<td class="'+(arrived?'':'pending ')+(selected?'selected':'')+'"><input type="number" min="-128" max="127" step="1" class="'+(value===0?'zero':'')+'" data-kind="'+kind+'" data-index="'+idx+'" aria-label="'+kind.toUpperCase()+'['+r+','+c+']" value="'+value+'"></td>';
+}
+function drawInputs(s){
+ let a='<table class="mat" aria-label="입력 A"><thead><tr><th>행 / K</th>'+range(0,4).map(q=>'<th>'+(q<s.len?'K'+(base+q):'—')+'</th>').join('')+'</tr></thead><tbody>';
+ for(let r=0;r<4;r++){
+   const rr=s.rowStart+r;
+   a+='<tr><th>'+(rr<m?rr:'—')+'</th>'+range(0,4).map(q=>rr<m&&q<s.len?
+     editCell('a',rr,base+q,inputs.a[rr*k+base+q],inputArrived(q,bank),s.valid&&s.ks[focusCol]===q):'<td class="invalid">—</td>').join('')+'</tr>';
+ }
+ $('input-a').innerHTML=a+'</tbody></table>';
+ let b='<table class="mat" aria-label="입력 B"><thead><tr><th>K / 열</th>'+range(0,4).map(c=>'<th>'+(col+c<n?col+c:'—')+'</th>').join('')+'</tr></thead><tbody>';
+ for(let q=0;q<4;q++)b+='<tr><th>'+(q<s.len?base+q:'—')+'</th>'+range(0,4).map(c=>q<s.len&&col+c<n?
+    editCell('b',base+q,col+c,inputs.b[(base+q)*n+col+c],inputArrived(q,k===1?bank:0),s.valid&&c===focusCol&&s.ks[c]===q):'<td class="invalid">—</td>').join('')+'</tr>';
+ $('input-b').innerHTML=b+'</tbody></table>';
+ $('input-loc').textContent='ACC '+bank+' · K '+base+'–'+(base+s.len-1);
+}
+function visibleBits(s,c){
+ return range(0,4).map(q=>q<s.len&&inputArrived(q,k===1?bank:0)&&col+c<n&&inputs.b[(base+q)*n+col+c]!==0?1:0);
+}
+function drawProcess(s){
+ $('mode-rows').innerHTML=range(0,4).map(c=>{
+    const bits=visibleBits(s,c);
+    const mode=Math.min(3,bits.reduce((a,b)=>a+b,0));
+    const complete=k===1?inputArrived(0,bank):received>(s.len-1)*nbanks();
+    return '<tr class="'+(c===focusCol?'focus':'')+'"><td><button data-focus="'+c+'" type="button">'+(col+c<n?col+c+'열':'무효')+'</button></td><td class="bit">'+[...bits].reverse().join('')+'</td><td class="pill-mode">'+modeNames[mode]+(complete?'':' · 수집 중')+'</td><td class="pick-k">'+(s.valid&&s.ks[c]!==null?'K'+(base+s.ks[c]):'—')+'</td></tr>';
+ }).join('');
+ $('round-count').textContent=s.allReady?s.rounds+'회':'수집 중';
+ $('round-explain').textContent=s.allReady?'라운드 × '+nbanks()+' ACC = '+(s.rounds*nbanks())+'패킷':'모든 ACC의 A가 준비되면 발행';
+ $('rounds').innerHTML=range(0,s.rounds).map(i=>'<button data-round="'+i+'" aria-pressed="'+(round===i)+'" '+(!s.allReady||!ready?'disabled':'')+'>'+(i+1)+'라운드</button>').join('');
+ $('processing-state').textContent=!s.allReady?'A·B 패킷을 버퍼에 저장하는 중입니다.':s.rounds===0?'모든 B 열이 0인 중간 그룹이므로 MAC 발행을 생략합니다.':s.lists.some(v=>v.length>=3)?'Dense 열에 맞춰 유효 K 전체를 순회합니다.':'가장 긴 열의 nonzero 목록에 맞춰 라운드를 정합니다.';
+ const fields=s.ks.map(q=>q??0);
+ const word=fields.reduce((v,q,c)=>v|(q<<(2*c)),0);
+ $('k-hex').textContent=s.valid?"8'h"+hex(word,2):'대기';
+ $('k-fields').innerHTML=[3,2,1,0].map(c=>'<div><span>'+c+'열 ['+(2*c+1)+':'+2*c+']</span><b>'+(s.valid?bin(fields[c],2):'··')+'</b></div>').join('');
+ $('k-note').textContent=s.valid?'out_k = '+base+' · 실제 K = 그룹 시작 + 열별 2비트':s.allReady?'out_valid = 0 · 출력 수락 없음':'그룹 완성 전 · out_valid = 0';
+}
+function drawOutput(s){
+ $('output-loc').textContent='ACC '+bank+' · '+(round+1)+'라운드';
+ $('out-rows').innerHTML=range(0,4).map(c=>{
+   const q=s.ks[c],b=s.bv[c],t=tagOf(b);
+   return '<tr class="'+(c===focusCol?'focus':'')+'"><td><button data-focus="'+c+'" type="button">'+(col+c<n?col+c+'열':'무효')+'</button><small class="tag-name">'+(s.valid&&q!==null?'K'+(base+q):'—')+'</small></td><td class="a-vector">'+(s.valid?'['+s.av[c].join(', ')+']':'대기')+'</td><td>'+(s.valid?b:'—')+'<span class="tag-name">'+(s.valid?hex(t,1)+' · '+tagLabel(t):'—')+'</span></td></tr>';
+ }).join('');
+ let mask='<table class="mask" aria-label="PE 실행 마스크"><thead><tr><th>r/c</th>'+range(0,4).map(c=>'<th>'+c+'</th>').join('')+'</tr></thead><tbody>';
+ for(let r=0;r<4;r++)mask+='<tr><th>'+r+'</th>'+s.masks[r].map(v=>'<td class="'+(s.valid&&v?'on':'')+'">'+(s.valid?v:'·')+'</td>').join('')+'</tr>';
+ const maskword=s.masks.flat().reduce((v,b,i)=>v|(b<<i),0);
+ $('work-mask').innerHTML=mask+'</tbody></table><div class="mask-word mono">'+(s.valid?"16'h"+hex(maskword,4):'대기')+'</div>';
+ $('a-word').innerHTML=range(0,4).map(c=>{
+   const word=s.av[c].reduce((v,a,r)=>(v|((a&255)<<(8*r)))>>>0,0);
+   return c+'열 '+(s.valid?"32'h"+hex(word,8):'대기');
+ }).join('<br>');
+ const rows=range(0,4).map(r=>s.rowStart+r<m?1:0).reverse().join('');
+ const cols=range(0,4).map(c=>col+c<n?1:0).reverse().join('');
+ $('signals').innerHTML='<span class="'+(s.valid?'live':'')+'">valid '+(s.valid?1:0)+'</span><span>bank '+bank+'</span><span>first '+(s.valid&&s.first?1:0)+'</span><span>last '+(s.valid&&s.last?1:0)+'</span><span>rows '+rows+'</span><span>cols '+cols+'</span>';
+ $('ready').textContent='MAC ready = '+(ready?1:0);
+ $('ready').setAttribute('aria-pressed',String(!ready));
+ $('next-output').disabled=!s.valid||!ready||(round===s.rounds-1&&bank===nbanks()-1);
+ $('handshake').textContent=!s.valid?'MAC은 현재 그룹의 패킷을 수락하지 않습니다.':ready?'valid=1 · ready=1 → 같은 B·K·A·태그·마스크를 수락합니다.':'valid=1 · ready=0 → 패킷과 발행 위치를 유지합니다.';
+}
+function drawProgress(s){
+ $('input-progress').innerHTML=range(0,totalPackets()).map(i=>{
+   const b=i%nbanks(),q=k===1?0:Math.floor(i/nbanks());
+   return '<span class="pip '+(i<received?'done ':'')+(i===received-1?'current':'')+'" title="K='+(base+q)+' · ACC '+b+'">'+q+'·'+b+'</span>';
+ }).join('');
+ $('input-caption').textContent=received+' / '+totalPackets()+'패킷 수집';
+ $('input-next').disabled=received===totalPackets();
+ $('input-first').disabled=received===0;
+ $('input-full').disabled=received===totalPackets();
+}
+function drawTrace(s){
+ const c=focusCol,q=s.ks[c],r=+$('row').value;
+ let text;
+ if(!s.valid)text=s.allReady?'그룹의 모든 B가 0이므로 이번 그룹은 발행 없이 넘어갑니다.':'입력 패킷을 받아 A·B 버퍼를 채웁니다. 그룹이 완성되면 출력 패킷을 볼 수 있습니다.';
+ else if(q===null)text=(col+c)+'열은 이번 라운드에 항이 없습니다. K 필드 00, B=0, 태그 ZERO, 해당 PE 마스크=0을 보냅니다.';
+ else {
+    const kk=base+q,a=inputs.a[r*k+kk],b=s.bv[c];
+    text='B['+kk+','+(col+c)+'] = '+b+' → '+modeNames[s.modes[c]]+'의 위치 '+q+' 선택 → K 필드 '+bin(q,2)+' → A['+r+','+kk+'] = '+a+'와 짝지어 '+a+' × '+b+' = '+a*b;
+    if(a===0||b===0)text+=' · 실행 마스크 0';
+ }
+ $('trace').innerHTML='<div><small>선택한 '+(col+c)+'열의 원본 → 선택 → 출력</small><p>'+text+'</p></div><button id="focus-next">다음 열 보기</button>';
+ $('focus-next').onclick=()=>{focusCol=(focusCol+1)%4;render();};
+}
+function opsTable(rows,highlight=-1){
+ return '<table class="ops"><thead><tr><th>발행</th>'+range(0,4).map(c=>'<th>'+(col+c<n?col+c+'열':'무효')+'</th>').join('')+'</tr></thead><tbody>'+rows.map((cells,i)=>'<tr class="'+(highlight===i?'focus':'')+'"><td>'+(i+1)+'</td>'+cells.map(v=>'<td>'+v+'</td>').join('')+'</tr>').join('')+'</tbody></table>';
+}
+function term(a,b){return a===0||b===0?'·':a+'×'+(b<0?'('+b+')':b)+'='+a*b;}
+function drawArithmetic(s){
+ const r=+$('row').value;
+ const bAt=(q,c)=>col+c<n?inputs.b[(base+q)*n+col+c]:0;
+ const old=range(0,s.len).map(q=>range(0,4).map(c=>term(inputs.a[r*k+base+q],bAt(q,c))));
+ const compact=range(0,s.rounds).map(i=>s.selections.map((qs,c)=>qs[i]===undefined?'·':term(inputs.a[r*k+base+qs[i]],bAt(qs[i],c))));
+ const expected=range(0,4).map(c=>range(0,s.len).reduce((sum,q)=>sum+inputs.a[r*k+base+q]*bAt(q,c),0));
+ const actual=s.selections.map((qs,c)=>qs.reduce((sum,q)=>sum+inputs.a[r*k+base+q]*bAt(q,c),0));
+ if(actual.some((v,c)=>v!==expected[c]))throw Error('계산 결과 불일치');
+ $('old-ops').innerHTML=opsTable(old);
+ $('new-ops').innerHTML=s.rounds?opsTable(compact,round):'<p class="helper">발행 없음 · 네 열 모두 누산 변화 0</p>';
+ $('old-summary').textContent=s.len+'회';
+ $('new-summary').textContent=s.rounds+'회';
+ $('result').textContent='두 방식 모두 C['+r+', '+col+'~'+Math.min(n-1,col+3)+']에 ['+expected.slice(0,Math.min(4,n-col)).join(', ')+']을 더합니다.';
+}
+function render(){
+ const s=modeModel();
+ drawInputs(s);drawProcess(s);drawOutput(s);drawProgress(s);drawTrace(s);drawArithmetic(s);
+ drawPlaybackStatus();
+}
+function drawPlaybackStatus(){
+ $('play').textContent=playbackTimer!==null?'Ⅱ 일시정지':playbackDone?'↻ 다시 재생':'▶ 재생';
+ $('play').setAttribute('aria-pressed',String(playbackTimer!==null));
+ if(!playbackStarted){
+   $('playback-status').textContent='재생하면 선택 그룹의 입력 수집부터 MAC 발행까지 진행합니다.';
+   return;
+ }
+ const s=modeModel(),total=s.rounds*nbanks();
+ const paused=playbackTimer===null&&!playbackDone?'일시정지 · ':'';
+ $('playback-status').textContent=playbackDone?
+   (total===0?'완료 · 0:4 중간 그룹의 MAC 발행을 생략했습니다.':'완료 · 입력 '+totalPackets()+'패킷 → MAC 출력 '+total+'패킷'):
+   received<totalPackets()?paused+'입력 수집 '+received+' / '+totalPackets()+'패킷':
+   !ready?paused+'MAC ready=0 · 출력 패킷과 발행 위치를 유지합니다.':
+   paused+'MAC 발행 '+outputConsumed+' / '+total+'패킷 · 라운드 안에서 ACC를 순회합니다.';
+}
+function pausePlayback(){
+ if(playbackTimer!==null)clearTimeout(playbackTimer);
+ playbackTimer=null;
+ drawPlaybackStatus();
+}
+function invalidatePlayback(){
+ pausePlayback();playbackStarted=false;playbackDone=false;outputConsumed=0;
+ drawPlaybackStatus();
+}
+function schedulePlayback(){
+ playbackTimer=setTimeout(playbackTick,Number($('speed').value));
+ drawPlaybackStatus();
+}
+function playbackTick(){
+ if(received<totalPackets()){
+   received++;
+   bank=received===totalPackets()?0:(received-1)%nbanks();
+   round=0;
+ }else{
+   const s=modeModel();
+   const total=s.rounds*nbanks();
+   if(total===0){
+     playbackDone=true;pausePlayback();render();return;
+   }
+   if(ready){
+     bank=outputConsumed%nbanks();
+     round=Math.floor(outputConsumed/nbanks());
+     outputConsumed++;
+     if(outputConsumed===total){
+       playbackDone=true;pausePlayback();rowsSelect();$('bank').value=bank;render();return;
+     }
+   }
+ }
+ rowsSelect();$('bank').value=bank;render();schedulePlayback();
+}
+$('play').onclick=()=>{
+ if(playbackTimer!==null){pausePlayback();return;}
+ if(!playbackStarted||playbackDone){
+   received=0;bank=0;round=0;outputConsumed=0;
+   playbackStarted=true;playbackDone=false;
+   rowsSelect();$('bank').value=bank;
+ }
+ schedulePlayback();render();
+};
+$('speed').onchange=()=>{
+ if(playbackTimer!==null){clearTimeout(playbackTimer);schedulePlayback();}
+};
+$('shape').onchange=()=>{
+ const custom=$('shape').value==='custom';$('customs').hidden=!custom;
+ if(!custom){[m,n,k]=$('shape').value.split(',').map(Number);setup();}
+};
+$('apply-shape').onclick=()=>{
+ const values=['custom-m','custom-n','custom-k'].map(id=>+$(id).value);
+ if(values.some((v,i)=>!Number.isInteger(v)||v<1||v>[64,128,1024][i])){$('error').textContent='M 1~64, N 1~128, K 1~1024의 정수를 입력하세요.';return;}
+ $('error').textContent='';[m,n,k]=values;setup();
+};
+$('pattern').onchange=setup;
+$('block').onchange=()=>{rb=+$('block').value;bank=0;round=0;ready=true;selects();received=totalPackets();render();};
+$('tile').onchange=()=>{col=+$('tile').value;round=0;ready=true;focusCol=0;render();};
+$('group').onchange=()=>{base=+$('group').value;round=0;ready=true;received=totalPackets();render();};
+$('bank').onchange=()=>{bank=+$('bank').value;rowsSelect();render();};
+$('row').onchange=render;
+$('reset').onclick=setup;
+$('input-first').onclick=()=>{received=0;round=0;bank=0;ready=true;rowsSelect();$('bank').value=bank;render();};
+$('input-next').onclick=()=>{received=Math.min(totalPackets(),received+1);bank=(received-1)%nbanks();rowsSelect();$('bank').value=bank;render();};
+$('input-full').onclick=()=>{received=totalPackets();bank=0;rowsSelect();$('bank').value=bank;render();};
+$('rounds').onclick=e=>{const b=e.target.closest('[data-round]');if(b&&ready){round=+b.dataset.round;render();}};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-focus]');if(b){focusCol=+b.dataset.focus;render();}});
+$('ready').onclick=()=>{ready=!ready;render();};
+$('next-output').onclick=()=>{const s=modeModel();if(!s.valid||!ready)return;if(bank<nbanks()-1)bank++;else if(round<s.rounds-1){round++;bank=0;}rowsSelect();$('bank').value=bank;render();};
+document.addEventListener('change',e=>{
+ const f=e.target.closest('[data-kind]');
+ if(!f)return;
+ const v=Number(f.value);
+ if(f.value.trim()===''||!Number.isInteger(v)||v<-128||v>127){
+   $('error').textContent='입력은 signed INT8 정수 −128~127이어야 합니다.';f.value=inputs[f.dataset.kind][+f.dataset.index];return;
+ }
+ $('error').textContent='';
+ if(inputs[f.dataset.kind][+f.dataset.index]===v)return;
+ invalidatePlayback();
+ inputs[f.dataset.kind][+f.dataset.index]=v;round=0;ready=true;render();
+});
+for(const id of ['shape','apply-shape','pattern','block','tile','group','bank','reset',
+                 'input-first','input-next','input-full','next-output']){
+ const event=['shape','pattern','block','tile','group','bank'].includes(id)?'onchange':'onclick';
+ const handler=$(id)[event];
+ $(id)[event]=function(e){invalidatePlayback();return handler.call(this,e);};
+}
+const chooseRound=$('rounds').onclick;
+$('rounds').onclick=e=>{
+ if(e.target.closest('[data-round]')&&ready)invalidatePlayback();
+ chooseRound(e);
+};
+window.addEventListener('pagehide',()=>{if(playbackTimer!==null)clearTimeout(playbackTimer);});
+document.addEventListener('focusin',e=>{
+ if(e.target.matches('[data-kind]')&&playbackTimer!==null)pausePlayback();
+});
+setup();
+</script>
+</body>
+</html>

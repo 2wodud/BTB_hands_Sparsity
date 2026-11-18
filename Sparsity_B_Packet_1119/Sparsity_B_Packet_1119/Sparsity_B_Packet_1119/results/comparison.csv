@@ -1,0 +1,5 @@
+case,m,n,k,original_mac_packets,packed_mac_packets,original_cycles,packed_cycles,delta_cycles,delta_percent,original_rtl_us,packed_rtl_us,original_first_mac,packed_first_mac,a_reads,b_reads,nonzero_mac_slots,original_xsim_wall_s,packed_xsim_wall_s,correct_c
+html_20x12x8,20,12,8,120,60,905,880,-25,-2.76,9.05,8.80,31,247,160,96,924,4.459,4.235,PASS
+html_8x8x4,8,8,4,16,8,237,240,3,+1.27,2.37,2.40,30,150,32,32,128,4.870,4.931,PASS
+html_19x11x7,19,11,7,105,60,775,744,-31,-4.00,7.75,7.44,31,247,133,77,706,4.532,4.468,PASS
+html_64x128x128,64,128,128,65536,32768,205567,204002,-1565,-0.76,2055.67,2040.02,36,252,32768,16384,507328,15.840,13.718,PASS
