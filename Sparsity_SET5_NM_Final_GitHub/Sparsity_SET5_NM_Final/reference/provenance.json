@@ -1,0 +1,77 @@
+{
+  "memory_commit": "f0bd24f62b54ce5adfdb85c8f9ac328698f7f1b9",
+  "mac_commit": "39c0341954c391be5697603a5ef18211224e9dda",
+  "files": [
+    {
+      "local": "rtl/gemm_control.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/gemm_control.v",
+      "git_blob_sha": "257e0b929b5fada2c88f4c52484ae6fc634dfd70"
+    },
+    {
+      "local": "rtl/operand_loader.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/operand_loader.v",
+      "git_blob_sha": "1a2c4844be49ac1588dce527e6ee582fb4a5fe5f"
+    },
+    {
+      "local": "rtl/result_writer.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/result_writer.v",
+      "git_blob_sha": "069d1a5755f90e2e17b30a7fa69c16fa419da0d0"
+    },
+    {
+      "local": "reference/mac_array_compute_nm.v",
+      "source": "leejunjunjun/BTB_GEMM_compute-pipeline/NM/rtl/mac_array_compute_nm.v",
+      "git_blob_sha": "02b48547ce94c135f69bf337ebc4926be953e03d"
+    },
+    {
+      "local": "reference/memory_gemm_top.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/gemm_top.v",
+      "git_blob_sha": "1afe6485ff8baf9f49f33996fa04be604baaaade"
+    },
+    {
+      "local": "reference/plan1_gemm_top.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan1_acc4/gemm_top.v",
+      "git_blob_sha": "f610b3edee7dd45e1bf7354bc2e258d76bed6d12"
+    },
+    {
+      "local": "reference/plan3_gemm_top.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan3_acc4/gemm_top.v",
+      "git_blob_sha": "550540038ce727c67e8a36e1b8ab8650337b12e9"
+    },
+    {
+      "local": "reference/memory_run_tests.py",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/run_tests.py",
+      "git_blob_sha": "a6de8cc6a622e7a9ec4aa97e3c31117f2cf7e212"
+    },
+    {
+      "local": "reference/memory_baseline/gemm_control.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/gemm_control.v",
+      "git_blob_sha": "257e0b929b5fada2c88f4c52484ae6fc634dfd70"
+    },
+    {
+      "local": "reference/memory_baseline/operand_loader.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/operand_loader.v",
+      "git_blob_sha": "1a2c4844be49ac1588dce527e6ee582fb4a5fe5f"
+    },
+    {
+      "local": "reference/memory_baseline/result_writer.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/result_writer.v",
+      "git_blob_sha": "069d1a5755f90e2e17b30a7fa69c16fa419da0d0"
+    },
+    {
+      "local": "reference/memory_baseline/mac_array.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/mac_array.v",
+      "git_blob_sha": "fab1fb366e35872d70b995dbc33f87dd7282047e"
+    },
+    {
+      "local": "reference/memory_baseline/sparsity_frontend.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/sparsity_frontend.v",
+      "git_blob_sha": "3c021a63a704e89dcd078e6705c7a6d32c5dadf1"
+    },
+    {
+      "local": "reference/memory_baseline/gemm_top.v",
+      "source": "angigpen/btb_memory_dataflow_team/loader_only/set5/plan2_acc4/gemm_top.v",
+      "git_blob_sha": "1afe6485ff8baf9f49f33996fa04be604baaaade"
+    }
+  ],
+  "plan1_loader_prefix_identical": true
+}

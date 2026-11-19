@@ -1,0 +1,195 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" agent="Codex" version="26.0.0">
+  <diagram id="1" name="01 전체 논리 구조">
+    <mxGraphModel dx="1800" dy="1200" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1200" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t" value="SPARSITY FRONTEND  |  입력을 모으고, B의 K를 압축해서 MAC에 전달" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#ffffff;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=30;align=left;verticalAlign=middle;spacing=15;fontStyle=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1720" height="75" as="geometry" />
+        </mxCell>
+        <mxCell id="sub" value="기준: 사용자가 붙여준 RTL 그대로 · PE_ROWS=4 / PE_COLS=4 / NBANK=4 · NM_ENABLE 없음" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#ffffff;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;fontStyle=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="95" width="1720" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="loader" value="메모리팀 LOADER&#10;&#10;in_a[31:0] : 같은 K의 A 4개&#10;in_b[31:0] : 같은 K의 B 4개&#10;유효 행/열 + bank + first/last" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f7fa;strokeColor=#a0aab6;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="220" width="310" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="det" value="① 입력 수락 · 값 판별&#10;&#10;accept_input = in_valid &amp; in_ready&#10;A: 행마다 nonzero 판별&#10;B: 열마다 nonzero + 특수값 tag&#10;입력 순서: K → bank" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="450" y="220" width="380" height="220" as="geometry" />
+        </mxCell>
+        <mxCell id="buf" value="② 그룹 버퍼 × 2&#10;&#10;A: bank별 K 네 위치 저장&#10;  a_values[slot][bank][K]&#10;B: bank들이 공유하는 값 저장&#10;  b_values[slot][K]&#10;nonzero bitmap · B tag · 경계 저장&#10;&#10;한쪽 수집 ↔ 다른 쪽 출력" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f7fa;strokeColor=#a0aab6;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="930" y="200" width="380" height="290" as="geometry" />
+        </mxCell>
+        <mxCell id="apack" value="③ A 전체 묶기&#10;&#10;K0/K1/K2/K3의 A 벡터&#10;원래 K 순서 · 128비트&#10;열별 A 선택은 MAC이 수행" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eaf2ff;strokeColor=#3976c5;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="200" width="350" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="bmode" value="③ B 열별 모드 결정&#10;&#10;choose_mode(): 0 / 1 / 2 / dense&#10;round 수 = 네 열 요구량의 최댓값&#10;A 모드 통계는 round를 줄이지 않음" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f6ee;strokeColor=#2b8a57;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="930" y="580" width="380" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="bselect" value="④ 열마다 B의 K 선택&#10;&#10;0:4 → 비활성&#10;1:4 / 2:4 → nonzero K 순서&#10;dense → 원래 K 순서&#10;&#10;B32 + tag16 + K index8" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f6ee;strokeColor=#2b8a57;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="530" width="350" height="225" as="geometry" />
+        </mxCell>
+        <mxCell id="mask" value="⑤ PE별 work_mask[15:0]&#10;&#10;선택된 K에서&#10;A nonzero AND B nonzero&#10;비활성 열은 tag=0, mask=0" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="930" y="855" width="380" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="mac" value="MAC팀 NM MAC&#10;&#10;A128 중 K index로 A 선택&#10;B tag로 MUL / PASS / NEG / SHL&#10;work_mask=1인 PE만 누산&#10;&#10;실제 곱셈·누산은 여기서 수행" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fff0de;strokeColor=#bd7b20;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1400" y="855" width="350" height="225" as="geometry" />
+        </mxCell>
+        <mxCell id="ctrl" value="출력 순서 / handshake&#10;&#10;round0: bank0 → bank1 → bank2 → bank3, 다음 round도 같은 순서&#10;out_valid &amp; out_ready에서만 출력 진행 · ready=0이면 패킷 고정&#10;bank별 단독 패킷 생략 금지: A=0이면 mask=0으로 전달&#10;빈 그룹 버퍼가 없으면 in_ready=0 → 로더 대기" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="580" width="790" height="175" as="geometry" />
+        </mxCell>
+        <mxCell id="zero" value="경계 처리&#10;&#10;B 전체가 0인 중간 그룹: MAC 발행 생략&#10;첫/마지막 0 그룹: ACC 초기화/출력용 mask=0 패킷 유지&#10;마지막 K가 1~3개이면 실제 길이만 처리 · K=1은 개별 완결" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f7fa;strokeColor=#a0aab6;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="855" width="790" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="foot" value="파랑=A 경로  ·  초록=B 경로  ·  보라=마스크/제어  ·  주황=MAC 경계 밖  |  입력의 A 4개씩을 모아 출력의 A 16개로 연결" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#ffffff;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=18;align=left;verticalAlign=middle;spacing=15;fontStyle=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1090" width="1710" height="65" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#a0aab6;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="loader" target="det">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="det" target="buf">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#3976c5;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="buf" target="apack">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" value="B 위치 bitmap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#2b8a57;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="buf" target="bmode">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#2b8a57;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="bmode" target="bselect">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" value="B / tag / K" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#2b8a57;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="bselect" target="mac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" value="A128" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#3976c5;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;exitX=1;exitY=0.5;entryX=1;entryY=0.4;" edge="1" parent="1" source="apack" target="mac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" value="선택 K" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#2b8a57;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;exitX=0;exitY=0.8;entryX=1;entryY=0;" edge="1" parent="1" source="bselect" target="mask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" value="A/B bitmap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;exitX=0;exitY=0.8;entryX=0;entryY=0.1;" edge="1" parent="1" source="buf" target="mask">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" value="work_mask16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="mask" target="mac">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="2" name="02 RTL 상세 데이터패스">
+    <mxGraphModel dx="1800" dy="1380" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1380" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t" value="RTL 상세  |  실제 레지스터 · 함수 · 선택 경로" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#ffffff;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=30;align=left;verticalAlign=middle;spacing=15;fontStyle=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1720" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="idx" value="입력 위치 계산&#10;in_k = in_first ? 0 : next_k[in_bank]&#10;in_pos = in_k[1:0]&#10;수락 시 next_k 갱신 / in_last에서 0&#10;K=0의 입력들로 마지막 bank 파악" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="130" width="500" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="an" value="A nonzero 위치 생성&#10;new_a_positions[4*r+q]&#10;현재 q: in_rows[r] &amp; (in_a[8*r+:8] != 0)&#10;in_pos=0에서 이전 bitmap 초기화" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eaf2ff;strokeColor=#3976c5;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="390" width="500" height="165" as="geometry" />
+        </mxCell>
+        <mxCell id="bn" value="B 분류 · 위치 생성&#10;classify_b(in_b[8*c+:8]) → input_tags&#10;new_b_positions[4*c+q]&#10;유효 열이며 tag != ZERO이면 nonzero&#10;store_b = bank0 또는 K=1" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f6ee;strokeColor=#2b8a57;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="630" width="500" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="store" value="더블 버퍼 레지스터&#10;&#10;a_values[2][4 banks][4 K] : 각 32bit&#10;b_values[2][4 K] : 각 32bit&#10;b_tags[2][4 K] : 각 16bit&#10;a_positions[2][4 banks] : 각 16bit&#10;b_positions[2] : 각 16bit&#10;&#10;rows / cols / first_bank / last_bank&#10;base_k / group_len / first_group / last_group&#10;&#10;full[1:0] · write_slot · read_slot&#10;A 원본 값 128B + B 원본 값 32B&#10;(tag / bitmap / 제어 저장공간은 별도)" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f7fa;strokeColor=#a0aab6;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="650" y="350" width="500" height="470" as="geometry" />
+        </mxCell>
+        <mxCell id="seal" value="그룹 완성 조건 seal&#10;(K 위치=3 또는 in_last)&#10;AND (K=1 또는 마지막 bank 도착)&#10;완성 시 full 설정 → write_slot 전환" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="650" y="130" width="500" height="150" as="geometry" />
+        </mxCell>
+        <mxCell id="aout" value="A128 출력 — 첨부 코드의 조건&#10;&#10;out_a[8*(4*q+r)+:8]&#10;= a_positions[4*r+q] ? 저장된 A : 0&#10;K별 원래 위치로 연결 / A를 열별 재배열 안 함&#10;A=0 또는 무효 위치는 0 출력" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eaf2ff;strokeColor=#3976c5;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="130" width="500" height="200" as="geometry" />
+        </mxCell>
+        <mxCell id="mode" value="열 c의 모드와 K 결정&#10;positions = b_positions[4*c+:4]&#10;mode = choose_mode(positions)&#10;sparse: select_k(positions, read_round)&#10;dense: k_pos = read_round&#10;열의 lane_live 여부도 함께 결정" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f6ee;strokeColor=#2b8a57;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="390" width="500" height="190" as="geometry" />
+        </mxCell>
+        <mxCell id="bout" value="B / K / tag 출력&#10;out_b[8*c+:8] = B[k_pos,c]&#10;out_b_tag[4*c+:4] = tag[k_pos,c]&#10;out_k_mask[2*c+:2] = k_pos&#10;비활성: B=0 / tag=0 / K index=0" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f6ee;strokeColor=#2b8a57;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="650" width="500" height="170" as="geometry" />
+        </mxCell>
+        <mxCell id="wm" value="PE 마스크 출력&#10;work_mask[4*r+c]&#10;= lane_live &amp; positions[k_pos]&#10;  &amp; a_positions[4*r+k_pos]" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1260" y="890" width="500" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="round" value="round 계산 · 읽기 순서&#10;needed_rounds[c] = dense ? 길이 : mode&#10;round_count = max(needed_rounds[0..3])&#10;read_bank 먼저 순회 → read_round 증가" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="650" y="890" width="500" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="tag" value="B 태그 규약 (열마다 4bit)&#10;0 → ZERO(0), +1 → PASS(2), −1 → NEG(3)&#10;+2,+4,+8,+16,+32,+64 → SHL(9..E)&#10;나머지 signed INT8 → MUL(1)" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f6ee;strokeColor=#2b8a57;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=18;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="890" width="500" height="160" as="geometry" />
+        </mxCell>
+        <mxCell id="hand" value="발행 제어 / 경계 / 관찰 출력&#10;&#10;in_ready = !rst &amp; !full[write_slot]   |   out_valid = !rst &amp; full[read_slot] &amp; !skip_group&#10;skip_group: round_count=0인 중간 그룹만 생략 (B의 모드로 결정 — A만 0인 그룹을 뜻하지 않음)&#10;out_first: 첫 그룹의 첫 round  /  out_last: 마지막 그룹의 마지막 round&#10;out_group_mode_a는 관찰 통계만 출력 · out_group_end는 생략 그룹에서도 bank별 처리 완료를 표시 · clk/rst는 전체 제어에 공통" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=19;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1130" width="1720" height="180" as="geometry" />
+        </mxCell>
+        <mxCell id="edge1" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="idx" target="seal">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge2" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="seal" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge3" value="A / A bitmap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#3976c5;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="an" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge4" value="B / tag / B bitmap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#2b8a57;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="bn" target="store">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge5" value="A / A bitmap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#3976c5;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;exitX=1;exitY=0.1;entryX=0;entryY=0.7;" edge="1" parent="1" source="store" target="aout">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge6" value="B bitmap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#2b8a57;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="store" target="mode">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge7" value="k_pos / lane_live" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#2b8a57;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="mode" target="bout">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge8" value="선택 K / lane_live" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="bout" target="wm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge9" value="B bitmap / 길이" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="store" target="round">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge10" value="read_round" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9;entryX=0;entryY=0.9;" edge="1" parent="1" source="round" target="mode">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="edge11" value="A/B bitmap" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=0;endArrow=block;endFill=1;strokeWidth=2;strokeColor=#8060b0;fontFamily=Malgun Gothic;fontSize=16;labelBackgroundColor=#ffffff;exitX=1;exitY=0.9;entryX=0;entryY=0.3;" edge="1" parent="1" source="store" target="wm">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram id="3" name="03 입출력 규약과 연산 예시">
+    <mxGraphModel dx="1800" dy="1400" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="1400" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t" value="인터페이스  |  4×4 PE · ACC 4세트 기준" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#ffffff;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=30;align=left;verticalAlign=middle;spacing=15;fontStyle=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="20" width="1720" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="in" value="입력: 로더 → 스파시티&#10;&#10;in_a 32bit / in_b 32bit&#10;in_rows 4bit / in_cols 4bit&#10;in_bank 2bit / in_first 1bit / in_last 1bit&#10;in_valid 입력 / in_ready 출력&#10;clk / rst 각 1bit&#10;&#10;매번 같은 K의 A 4개 + B 4개&#10;in_rows/in_cols는 유효 위치이며&#10;nonzero 마스크는 내부에서 별도 생성" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f7fa;strokeColor=#a0aab6;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="130" width="530" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="out" value="연산 출력: 스파시티 → MAC&#10;&#10;out_a 128bit → op_a&#10;out_b 32bit → op_b&#10;out_b_tag 16bit → op_b_tag&#10;out_k_mask 8bit → column_k_position&#10;work_mask 16bit → work_mask&#10;out_rows/out_cols 각 4bit&#10;out_first/out_last 각 1bit&#10;out_valid 출력 / out_ready 입력" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#fff0de;strokeColor=#bd7b20;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="630" y="130" width="530" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="obs" value="관찰 / 제어 정보 출력&#10;&#10;out_k 16bit: 그룹 시작 K&#10;out_bank 2bit: 타일 bank&#10;out_group_len 3bit: 유효 K 개수&#10;out_group_end 1bit: bank별 그룹 완료&#10;out_group_mask_a / b 각 16bit&#10;out_group_mode_a / b 각 8bit&#10;&#10;out_bank는 MAC의 bank 선택 입력이 아님&#10;MAC은 수락 순서와 first/last로 ACC 선택&#10;나머지 신호도 통합/관찰에 사용" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f5f7fa;strokeColor=#a0aab6;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="130" width="530" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="layout" value="A 128bit 배치 — K-major&#10;&#10;[31:0]    = K0의 A 행0 / 행1 / 행2 / 행3&#10;[63:32]   = K1의 A 행0 / 행1 / 행2 / 행3&#10;[95:64]   = K2의 A 행0 / 행1 / 행2 / 행3&#10;[127:96]  = K3의 A 행0 / 행1 / 행2 / 행3&#10;&#10;정확한 byte: out_a[8*(4*k+r)+:8] = A[r,k]" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eaf2ff;strokeColor=#3976c5;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=21;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="540" width="820" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="bits" value="서로 다른 마스크 / 인덱스의 배치&#10;&#10;out_k_mask[2*c+:2] : 열 c의 K 인덱스 (0~3)&#10;  열0=[1:0] · 열1=[3:2] · 열2=[5:4] · 열3=[7:6]&#10;work_mask[4*r+c] : 이번 round의 PE[r,c] 허용&#10;out_group_mask_a[4*r+k] : A 행 r의 원래 K 위치&#10;out_group_mask_b[4*c+k] : B 열 c의 원래 K 위치&#10;각 group_mode[2*i+:2] : 00 / 01 / 10 / 11" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#f0eaff;strokeColor=#8060b0;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=20;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="920" y="540" width="830" height="270" as="geometry" />
+        </mxCell>
+        <mxCell id="example" value="서로 다른 K를 한 round에 연산하는 예&#10;&#10;             K0   K1   K2   K3&#10;A 행0        2    3    4    5&#10;B 열0        0    7    0    2    → 2:4&#10;B 열1        6    0    8    0    → 2:4&#10;&#10;round0: 열0 K1 → 3×7 / 열1 K0 → 2×6&#10;round1: 열0 K3 → 5×2 / 열1 K2 → 4×8&#10;누산 결과: C[0,0]=31 / C[0,1]=44&#10;A는 두 round 모두 원래 K 순서로 전달" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#eaf2ff;strokeColor=#3976c5;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=21;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="40" y="880" width="820" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="modes" value="모드별 동작과 주의할 해석&#10;&#10;00: nonzero 0개 → 해당 열 비활성&#10;01: nonzero 1개 → 그 K를 1 round에 발행&#10;10: nonzero 2개 → 그 K들을 2 round에 발행&#10;11: nonzero 3~4개 → 원래 K 순서로 dense 발행&#10;&#10;그룹의 round 수는 가장 긴 열에 맞춤&#10;먼저 끝난 열: B/tag/work_mask를 0으로 전달&#10;0인 첫/마지막 그룹은 제어 패킷 유지&#10;프루닝 없음: nonzero 값을 버리지 않음" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#e8f6ee;strokeColor=#2b8a57;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=21;align=left;verticalAlign=middle;spacing=15;" vertex="1" parent="1">
+          <mxGeometry x="920" y="880" width="830" height="350" as="geometry" />
+        </mxCell>
+        <mxCell id="footer" value="기준 RTL SHA-256: dbdb0d679d18671a129ace19…  |  첨부 코드의 실제 연결을 표현 · RTL 수정 없음 · NM_ENABLE 없음" style="rounded=1;whiteSpace=wrap;html=0;fillColor=#ffffff;strokeColor=#ffffff;strokeWidth=2;fontColor=#162c40;fontFamily=Malgun Gothic;fontSize=17;align=left;verticalAlign=middle;spacing=15;fontStyle=1;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="40" y="1280" width="1710" height="65" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

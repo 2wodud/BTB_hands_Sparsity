@@ -1,0 +1,15 @@
+{
+  "previous_package_sha256": "5cbd83de10326f2f0d5b199691a375882c7e58db1284a8abcbd99dde7c5bd889",
+  "teammate_frontend_sha256": "dbdb0d679d18671a129ace19fa541dda7a5c1264fbd6306d62f38720dee716fb",
+  "unchanged_rtl_sha256": {
+    "gemm_control.v": "137751ee95681341b2867fd5230883399adb2c1b4da9859d8980bb64fa33b6e8",
+    "operand_loader.v": "e9b3607b9f103981484f9f5ea0f87c089d4015913360af47ae6a5d9a030b3f26",
+    "result_writer.v": "2c21b9c4d235a3f75cd8930398aa48641cc32df47a08e927c76fbe65ea122bda",
+    "mac_array_compute_nm.v": "4b604b234f67a2daf5880b56f1fd5c557dc509fd03ef8d40c00352631d4590e5"
+  },
+  "gemm_top_changes": [
+    "Remove NM_ENABLE parameter declaration",
+    "Remove NM_ENABLE override on sparsity_frontend"
+  ],
+  "teammate_frontend_modified": false
+}
